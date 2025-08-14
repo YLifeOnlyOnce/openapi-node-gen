@@ -1,0 +1,50 @@
+name: Auto Generate and Publish API Client
+
+on:
+  push:
+    paths:
+      - 'specs/**/*.yaml'
+      - 'specs/**/*.yml'
+      - 'specs/**/*.json'
+  pull_request:
+    paths:
+      - 'specs/**/*.yaml'
+      - 'specs/**/*.yml'
+      - 'specs/**/*.json'
+
+jobs:
+  generate-and-publish:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        registry-url: 'https://registry.npmjs.org/'
+    
+    - name: Install dependencies
+      run: npm install
+    
+    - name: Generate API client
+      run: npm run generate
+    
+    - name: Update version
+      run: npm version patch --no-git-tag-version
+    
+    - name: Publish to NPM
+      if: github.ref == 'refs/heads/main'
+      run: npm publish
+      env:
+        NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+    
+    - name: Commit generated files
+      if: github.ref == 'refs/heads/main'
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add .
+        git commit -m "Auto-generate API client [skip ci]" || exit 0
+        git push

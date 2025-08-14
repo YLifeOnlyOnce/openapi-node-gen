@@ -1,0 +1,9 @@
+{
+  "projectName": "test-api",
+  "specFile": "./specs/api.yaml",
+  "outputDir": "./generated",
+  "docsDir": "./docs",
+  "generator": "typescript-node",
+  "npmRegistry": "https://registry.npmjs.org/",
+  "autoPublish": false
+}
